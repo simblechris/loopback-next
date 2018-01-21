@@ -8,6 +8,7 @@ export * from './binding';
 export * from './binding-decorator';
 export * from './binding-inspector';
 export * from './binding-key';
+export * from './binding-config';
 export * from './context';
 export * from './inject';
 export * from './keys';

@@ -56,21 +56,6 @@ describe('Context bindings - injecting configuration for bound artifacts', () =>
     expect(server1.config).to.eql({port: 3000});
   });
 
-  it('configure values at parent level(s)', async () => {
-    const ctx = new Context();
-
-    // Bind configuration
-    ctx.configure('servers.rest').to({server1: {port: 3000}});
-
-    // Bind RestServer
-    ctx.bind('servers.rest.server1').toClass(RestServer);
-
-    // Resolve an instance of RestServer
-    // Expect server1.config to be `{port: 3000}
-    const server1 = await ctx.get<RestServer>('servers.rest.server1');
-    expect(server1.config).to.eql({port: 3000});
-  });
-
   it('binds configuration for environments', async () => {
     const ctx = new Context();
 
@@ -94,9 +79,12 @@ describe('Context bindings - injecting configuration for bound artifacts', () =>
 
     ctx.bind(ENVIRONMENT_KEY).to('dev');
     // Bind configuration
-    ctx.configure('servers.rest.server1', 'dev').to({port: 4000});
-    ctx.configure('servers.rest.server1', 'test').to({port: 3000});
-    ctx.configure('servers.rest.server1').to({host: 'localhost'});
+    ctx
+      .configure('servers.rest.server1', 'dev')
+      .to({host: 'localhost', port: 4000});
+    ctx
+      .configure('servers.rest.server1', 'test')
+      .to({host: 'localhost', port: 3000});
 
     // Bind RestServer
     ctx.bind('servers.rest.server1').toClass(RestServer2);

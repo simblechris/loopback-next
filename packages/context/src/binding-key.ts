@@ -107,18 +107,19 @@ export class BindingKey<ValueType> {
   static CONFIG_NAMESPACE = '$config';
   /**
    * Build a binding key for the configuration of the given binding and env.
-   * The format is `$config.<env>:<key>`
+   * The format is `<key>:$config.<env>`
    *
    * @param key The binding key that accepts the configuration
    * @param env The environment such as `dev`, `test`, and `prod`
    */
-  static buildKeyForConfig<T>(key: BindingAddress<T> = '', env: string = '') {
-    const namespace = env
+  static buildKeyForConfig(
+    key: BindingAddress<unknown> = '',
+    env: string = '',
+  ) {
+    const suffix = env
       ? `${BindingKey.CONFIG_NAMESPACE}.${env}`
       : BindingKey.CONFIG_NAMESPACE;
-    const bindingKey = key
-      ? `${namespace}.${key}`
-      : BindingKey.CONFIG_NAMESPACE;
+    const bindingKey = key ? `${key}:${suffix}` : suffix;
     return bindingKey;
   }
 }

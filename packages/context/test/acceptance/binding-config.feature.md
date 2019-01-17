@@ -12,7 +12,7 @@
   `config: RestServerConfig`
 - Given `RestServer` ctor argument is decorated with `@inject.config()`
 - When I bind a configuration object `{port: 3000}` to
-  `$config:servers.rest.server1`
+  `servers.rest.server1:$config`
 - And bind the rest server to `servers.rest.server1`
 - And resolve the binding for `servers.rest.server1`
 - Then I get a new instance of `RestServer`
@@ -43,7 +43,7 @@ const server1 = await ctx.get('servers.rest.server1');
   `config: RestServerConfig`
 - Given `RestServer` ctor argument is decorated with `@inject.config()`
 - When I bind a configuration factory of `{port: 3000}` to
-  `$config:servers.rest.server1`
+  `servers.rest.server1:$config`
 - And bind the rest server to `servers.rest.server1`
 - And resolve the binding for `servers.rest.server1`
 - Then I get a new instance of `RestServer`
@@ -69,38 +69,7 @@ ctx.bind('servers.rest.server1').toClass(RestServer);
 const server1 = await ctx.get('servers.rest.server1');
 ```
 
-# Scenario: configure values at parent level(s)
-
-- Given a `Context`
-- Given a class RestServer with a constructor accepting a single argument
-  `config: RestServerConfig`
-- Given `RestServer` ctor argument is decorated with `@inject.config()`
-- When I bind a configuration object `{server1: {port: 3000}}` to
-  `$config:servers.rest`
-- And bind the rest server to `servers.rest.server1`
-- And resolve the binding for `servers.rest.server1`
-- Then I get a new instance of `RestServer`
-- And the instance was created with `config` set to `{port: 3000}`
-
-```ts
-class RestServer {
-   constructor(@inject.config() public config: RestServerConfig) {}
- }
-
-const ctx = new Context();
-
-// Bind configuration
-ctx.configure('servers.rest).to({server1: {port: 3000}});
-
-// Bind RestServer
-ctx.bind('servers.rest.server1').toClass(RestServer);
-
-// Resolve an instance of RestServer
-// Expect server1.config to be `{port: 3000}
-const server1 = await ctx.get('servers.rest.server1');
-```
-
-# Scenario: configure values for different envs
+# Scenario: configure values for different environments
 
 - Given a `Context`
 - Given a class RestServer with a constructor accepting a single argument

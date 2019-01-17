@@ -493,23 +493,6 @@ describe('Context bindings - Injecting dependencies of classes', () => {
     expect(store.optionX).to.eql(1);
   });
 
-  it('injects config from config binding by key namespaces', () => {
-    class MyStore {
-      constructor(
-        @inject.config('x') public optionX: number,
-        @inject.config('y') public optionY: string,
-      ) {}
-    }
-
-    ctx.configure('stores').to({MyStore: {y: 'a'}});
-    ctx.configure('stores.MyStore').to({x: 1});
-    ctx.bind('stores.MyStore').toClass(MyStore);
-
-    const store: MyStore = ctx.getSync('stores.MyStore');
-    expect(store.optionX).to.eql(1);
-    expect(store.optionY).to.eql('a');
-  });
-
   function createContext() {
     ctx = new Context();
   }

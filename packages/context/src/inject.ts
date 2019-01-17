@@ -377,7 +377,6 @@ function resolveFromConfig(
   return ctx.getConfigAsValueOrPromise(binding.key, meta.configPath, {
     session,
     optional: meta.optional,
-    localConfigOnly: meta.localConfigOnly,
     environment: env,
   });
 }

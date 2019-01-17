@@ -6,11 +6,11 @@
 import * as debugModule from 'debug';
 import {v1 as uuidv1} from 'uuid';
 import {Binding, BindingTag} from './binding';
-import {BindingAddress, BindingKey} from './binding-key';
 import {
   ConfigurationResolver,
-  HierarchicalConfigurationResolver,
+  DefaultConfigurationResolver,
 } from './binding-config';
+import {BindingAddress, BindingKey} from './binding-key';
 import {ResolutionOptions, ResolutionSession} from './resolution-session';
 import {
   BoundValue,
@@ -91,11 +91,11 @@ export class Context {
    * For example, `ctx.configure('controllers.MyController').to({x: 1})` will
    * create binding `controllers.MyController:$config` with value `{x: 1}`.
    *
-   * @param key The key for the binding that accepts the config
+   * @param key The key for the binding to be configured
    * @param env The env (such as `dev`, `test`, and `prod`) for the config
    */
   configure<ConfigValueType = BoundValue>(
-    key: BindingAddress<BoundValue> = '',
+    key: BindingAddress<unknown> = '',
     env: string = '',
   ): Binding<ConfigValueType> {
     const keyForConfig = BindingKey.buildKeyForConfig(key, env);
@@ -106,27 +106,18 @@ export class Context {
   }
 
   /**
-   * Resolve config from the binding key hierarchy using namespaces
-   * separated by `.`
+   * Get the value or promise of configuration for a given binding by key
    *
-   * For example, if the binding key is `servers.rest.server1`, we'll try the
-   * following entries:
-   * 1. servers.rest.server1:$config#host (namespace: server1)
-   * 2. servers.rest:$config#server1.host (namespace: rest)
-   * 3. servers.$config#rest.server1.host` (namespace: server)
-   * 4. $config#servers.rest.server1.host (namespace: '' - root)
-   *
-   * @param key Binding key with namespaces separated by `.`
+   * @param key Binding key
    * @param configPath Property path for the option. For example, `x.y`
-   * requests for `config.x.y`. If not set, the `config` object will be
+   * requests for `<config>.x.y`. If not set, the `<config>` object will be
    * returned.
    * @param resolutionOptions Options for the resolution.
-   * - localConfigOnly: if set to `true`, no parent namespaces will be checked
    * - optional: if not set or set to `true`, `undefined` will be returned if
    * no corresponding value is found. Otherwise, an error will be thrown.
    */
   getConfigAsValueOrPromise<ConfigValueType>(
-    key: BindingAddress<BoundValue>,
+    key: BindingAddress<unknown>,
     configPath?: string,
     resolutionOptions?: ResolutionOptions,
   ): ValueOrPromise<ConfigValueType | undefined> {
@@ -140,31 +131,22 @@ export class Context {
   private getConfigResolver() {
     if (!this.configResolver) {
       // TODO: Check bound ConfigurationResolver
-      this.configResolver = new HierarchicalConfigurationResolver(this);
+      this.configResolver = new DefaultConfigurationResolver(this);
     }
     return this.configResolver;
   }
 
   /**
-   * Resolve config from the binding key hierarchy using namespaces
-   * separated by `.`
+   * Resolve configuration for the binding by key
    *
-   * For example, if the binding key is `servers.rest.server1`, we'll try the
-   * following entries:
-   * 1. servers.rest.server1:$config#host (namespace: server1)
-   * 2. servers.rest:$config#server1.host (namespace: rest)
-   * 3. servers.$config#rest.server1.host` (namespace: server)
-   * 4. $config#servers.rest.server1.host (namespace: '' - root)
-   *
-   * @param key Binding key with namespaces separated by `.`
+   * @param key Binding key
    * @param configPath Property path for the option. For example, `x.y`
-   * requests for `config.x.y`. If not set, the `config` object will be
+   * requests for `<config>.x.y`. If not set, the `<config>` object will be
    * returned.
-   * @param resolutionOptions Options for the resolution. If `localConfigOnly` is
-   * set to true, no parent namespaces will be looked up.
+   * @param resolutionOptions Options for the resolution.
    */
   async getConfig<ConfigValueType>(
-    key: BindingAddress<BoundValue>,
+    key: BindingAddress<unknown>,
     configPath?: string,
     resolutionOptions?: ResolutionOptions,
   ): Promise<ConfigValueType | undefined> {
@@ -176,17 +158,9 @@ export class Context {
   }
 
   /**
-   * Resolve config synchronously from the binding key hierarchy using
-   * namespaces separated by `.`
+   * Resolve configuration synchronously for the binding by key
    *
-   * For example, if the binding key is `servers.rest.server1`, we'll try the
-   * following entries:
-   * 1. servers.rest.server1:$config#host (namespace: server1)
-   * 2. servers.rest:$config#server1.host (namespace: rest)
-   * 3. servers.$config#rest.server1.host` (namespace: server)
-   * 4. $config#servers.rest.server1.host (namespace: '' - root)
-   *
-   * @param key Binding key with namespaces separated by `.`
+   * @param key Binding key
    * @param configPath Property path for the option. For example, `x.y`
    * requests for `config.x.y`. If not set, the `config` object will be
    * returned.
@@ -194,7 +168,7 @@ export class Context {
    * is set to `true`, no parent namespaces will be looked up.
    */
   getConfigSync<ConfigValueType>(
-    key: BindingAddress<BoundValue>,
+    key: BindingAddress<unknown>,
     configPath?: string,
     resolutionOptions?: ResolutionOptions,
   ): ConfigValueType | undefined {

@@ -10,7 +10,7 @@ import {ValueOrPromise} from './value-promise';
 /**
  * Context event types
  */
-export type ContextEventType = 'bind' | 'unbind';
+export type ContextEventType = string;
 
 /**
  * Listeners of context bind/unbind events

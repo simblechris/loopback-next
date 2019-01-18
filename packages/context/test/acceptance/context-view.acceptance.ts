@@ -155,7 +155,6 @@ describe('ContextEventListener - listens on matching bindings', () => {
     server.subscribe(contextListener);
     givenController(server, '1');
     givenController(server.parent!, '2');
-    return contextListener;
   }
 
   function givenController(_ctx: Context, _name: string) {

@@ -712,7 +712,6 @@ describe('Context', () => {
         filter: binding => false,
         listen: (event, binding) => {},
       };
-      return listener;
     }
   });
 

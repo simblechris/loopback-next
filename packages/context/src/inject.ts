@@ -62,7 +62,7 @@ export interface InjectionMetadata {
  */
 export type BindingSelector<ValueType = unknown> =
   | BindingAddress<ValueType>
-  | BindingFilter;
+  | BindingFilter<ValueType>;
 
 /**
  * Descriptor for an injection point
@@ -311,6 +311,12 @@ export namespace inject {
   };
 }
 
+function isBindingAddress(
+  bindingSelector: BindingSelector,
+): bindingSelector is BindingAddress {
+  return typeof bindingSelector !== 'function';
+}
+
 function resolveAsGetter(
   ctx: Context,
   injection: Readonly<Injection>,
@@ -324,14 +330,14 @@ function resolveAsGetter(
       `The type of ${targetName} (${targetType.name}) is not a Getter function`,
     );
   }
-  if (typeof injection.bindingSelector === 'function') {
+  const bindingSelector = injection.bindingSelector;
+  if (!isBindingAddress(bindingSelector)) {
     return resolveByFilter(ctx, injection, session);
   }
   // We need to clone the session for the getter as it will be resolved later
   session = ResolutionSession.fork(session);
   return function getter() {
-    const key = injection.bindingSelector as BindingAddress;
-    return ctx.get(key, {
+    return ctx.get(bindingSelector, {
       session,
       optional: injection.metadata && injection.metadata.optional,
     });
@@ -340,17 +346,21 @@ function resolveAsGetter(
 
 function resolveAsSetter(ctx: Context, injection: Injection) {
   const targetType = inspectTargetType(injection);
+  const targetName = ResolutionSession.describeInjection(injection)!.targetName;
   if (targetType && targetType !== Function) {
-    const targetName = ResolutionSession.describeInjection(injection)!
-      .targetName;
     throw new Error(
       `The type of ${targetName} (${targetType.name}) is not a Setter function`,
     );
   }
+  const bindingSelector = injection.bindingSelector;
+  if (!isBindingAddress(bindingSelector)) {
+    throw new Error(
+      `@inject.setter for (${targetType.name}) does not allow BindingFilter`,
+    );
+  }
   // No resolution session should be propagated into the setter
   return function setter(value: unknown) {
-    const key = injection.bindingSelector as BindingAddress;
-    ctx.bind(key).to(value);
+    ctx.bind(bindingSelector).to(value);
   };
 }
 

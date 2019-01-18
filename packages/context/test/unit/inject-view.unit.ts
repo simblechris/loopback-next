@@ -16,7 +16,9 @@ import {
 
 describe('@inject.view', async () => {
   let ctx: Context;
-  beforeEach(() => (ctx = givenContext()));
+  beforeEach(() => {
+    ctx = givenContext();
+  });
 
   class MyControllerWithGetter {
     @inject.view(filterByTag('foo'), {watch: true})
@@ -70,7 +72,9 @@ describe('@inject.view', async () => {
 
 describe('@inject with filter function', async () => {
   let ctx: Context;
-  beforeEach(() => (ctx = givenContext()));
+  beforeEach(() => {
+    ctx = givenContext();
+  });
 
   class MyControllerWithGetter {
     @inject.getter(filterByTag('foo'), {watch: true})
